@@ -1,0 +1,17 @@
+---
+import { siteConfig } from '../config/site';
+import { t, getLangFromUrl } from '../lib/i18n';
+
+const lang = getLangFromUrl(Astro.url);
+---
+
+<footer class="site-footer">
+  <p class="footer-copy">
+    {t('footer.copy', lang).replace('IziBlog', siteConfig.name)}
+  </p>
+  <p class="footer-links">
+    <a href="/rss.xml">RSS</a>
+    <span class="dot" aria-hidden="true"></span>
+    {siteConfig.social.github && <a href={siteConfig.social.github} target="_blank" rel="noopener noreferrer">GitHub</a>}
+  </p>
+</footer>

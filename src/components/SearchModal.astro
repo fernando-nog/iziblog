@@ -1,0 +1,91 @@
+<div id="searchModal" class="search-modal" role="dialog" aria-modal="true" aria-label="Search" hidden>
+  <div class="search-modal-overlay"></div>
+  <div class="search-modal-content">
+    <input id="searchInputModal" type="search" placeholder="Search posts…" autocomplete="off" aria-label="Search posts" />
+    <div id="searchResults" class="search-results"></div>
+    <p class="search-hint">Press <kbd>Esc</kbd> to close</p>
+  </div>
+</div>
+
+<script>
+var searchIndex = [];
+var modal = document.getElementById('searchModal');
+var input = document.getElementById('searchInputModal');
+var results = document.getElementById('searchResults');
+
+function loadIndex() {
+  fetch('/search-index.json')
+    .then(function(res) { return res.ok ? res.json() : []; })
+    .then(function(data) { searchIndex = data || []; })
+    .catch(function() { searchIndex = []; });
+}
+
+function openSearch() {
+  modal.hidden = false;
+  modal.style.display = 'block';
+  input.value = '';
+  input.focus();
+  results.innerHTML = '';
+  loadIndex();
+}
+
+function closeSearch() {
+  modal.hidden = true;
+  modal.style.display = 'none';
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"]/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+function doSearch(query) {
+  if (!query.trim() || !searchIndex.length) {
+    results.innerHTML = '';
+    return;
+  }
+  var q = query.toLowerCase();
+  var matches = searchIndex.filter(function(item) {
+    return item.title.toLowerCase().indexOf(q) !== -1 ||
+           item.excerpt.toLowerCase().indexOf(q) !== -1;
+  }).slice(0, 10);
+
+  if (matches.length) {
+    results.innerHTML = matches.map(function(r) {
+      return '<a href="' + r.url + '" class="search-result">' +
+             '<strong>' + escapeHtml(r.title) + '</strong>' +
+             '<span>' + escapeHtml(r.excerpt) + '</span>' +
+             '</a>';
+    }).join('');
+  } else {
+    results.innerHTML = '<p class="search-no-results">No results found</p>';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    openSearch();
+  }
+  if (e.key === 'Escape' && !modal.hidden) {
+    closeSearch();
+  }
+});
+
+document.getElementById('searchInput')?.addEventListener('focus', function() {
+  openSearch();
+  document.getElementById('searchInput').blur();
+});
+
+input?.addEventListener('input', function() {
+  doSearch(input.value);
+});
+
+modal?.addEventListener('click', function(e) {
+  if (e.target === modal || e.target.classList.contains('search-modal-overlay')) {
+    closeSearch();
+  }
+});
+</script>
+

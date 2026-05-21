@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import Pagination from '../../../components/Pagination.astro';
+import { getPublishedPosts, getAllTags, type Post } from '../../../lib/posts';
+import { t } from '../../../lib/i18n';
+import type { Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'en' } }, { params: { lang: 'pt' } }];
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const POSTS_PER_PAGE = 8;
+const currentPage = 1;
+const allPosts = await getPublishedPosts(lang);
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+const tags = getAllTags(allPosts);
+---
+
+<BaseLayout title={t('articles.title', lang)} description={t('articles.desc', lang)} lang={lang}>
+  <div class="container">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">{t('sidebar.categories', lang)}</div>
+        <div class="tag-cloud">
+          {[...tags.keys()].map(tag => (
+            <a href={`/${lang}/tags/${encodeURIComponent(tag)}`}>{tag}</a>
+          ))}
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">{t('sidebar.archive', lang)}</div>
+        <ul class="sidebar-list">
+          {Array.from(new Map(
+            [...allPosts.entries()].map(([, p]) => [p.data.pubDate.getFullYear(), p])
+          ).entries()).sort((a, b) => b[0] - a[0]).map(([year]) => (
+            <li><a href={`/${lang}/archive`}>{year}</a></li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <main class="main">
+      <h1 class="page-title">{t('articles.title', lang)}</h1>
+      <p class="page-sub">{t('articles.desc', lang)}</p>
+      <div style="border-top: 1px solid var(--border);">
+        {posts.map((post: Post) => <PostCard post={post} lang={lang} />)}
+      </div>
+      {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/${lang}/articles`} />}
+    </main>
+  </div>
+</BaseLayout>

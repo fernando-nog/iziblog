@@ -1,0 +1,68 @@
+---
+import { siteConfig } from '../config/site';
+import { makeTitle, makeCanonical } from '../lib/seo';
+import { getLangFromUrl } from '../lib/i18n';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogType?: string;
+  noindex?: boolean;
+  lang?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = siteConfig.description,
+  canonicalUrl,
+  ogImage,
+  ogType = 'website',
+  noindex = false,
+  lang,
+  jsonLd,
+} = Astro.props;
+
+const pageLang = lang || getLangFromUrl(Astro.url);
+const pageTitle = makeTitle(title);
+const canonical = canonicalUrl || makeCanonical(Astro.url.pathname);
+const image = ogImage || `${siteConfig.siteUrl}/favicon.svg`;
+
+// Alternate hreflang links
+const currentPath = Astro.url.pathname.replace(/^\/(en|pt)/, '') || '/';
+const enUrl = `${siteConfig.siteUrl}/en${currentPath === '/' ? '/' : currentPath}`;
+const ptUrl = `${siteConfig.siteUrl}/pt${currentPath === '/' ? '/' : currentPath}`;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:type" content={ogType} />
+<meta property="og:image" content={image} />
+<meta property="og:locale" content={pageLang === 'pt' ? 'pt_BR' : 'en_US'} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+
+<link rel="alternate" hreflang="en" href={enUrl} />
+<link rel="alternate" hreflang="pt" href={ptUrl} />
+<link rel="alternate" hreflang="x-default" href={enUrl} />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+{jsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+)}
+
+<link rel="alternate" type="application/rss+xml" title={siteConfig.name} href={`${siteConfig.siteUrl}/rss.xml`} />

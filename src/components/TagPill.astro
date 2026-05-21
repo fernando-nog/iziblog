@@ -1,0 +1,10 @@
+---
+interface Props {
+  tag: string;
+  lang?: string;
+}
+
+const { tag, lang = 'en' } = Astro.props;
+---
+
+<a href={`/${lang}/tags/${encodeURIComponent(tag)}`} class="tag-pill">{tag}</a>

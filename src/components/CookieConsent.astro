@@ -1,0 +1,112 @@
+<div id="cookieBanner" class="cookie-banner" role="region" aria-label="Cookie consent">
+  <div class="cookie-banner-inner">
+    <p class="cookie-text">We use cookies to enhance your experience. You can choose which categories to allow.</p>
+    <div class="cookie-actions">
+      <button class="cookie-btn cookie-btn-reject" id="cookieReject">Reject non-essential</button>
+      <button class="cookie-btn cookie-btn-manage" id="cookieManage">Manage preferences</button>
+      <button class="cookie-btn cookie-btn-accept" id="cookieAccept">Accept all</button>
+    </div>
+  </div>
+</div>
+
+<div id="cookieModal" class="cookie-modal" role="dialog" aria-modal="true" aria-label="Cookie preferences" hidden>
+  <div class="cookie-modal-overlay"></div>
+  <div class="cookie-modal-content">
+    <h2 class="cookie-modal-title">Cookie Preferences</h2>
+    <p class="cookie-modal-desc">Choose which cookie categories you want to allow.</p>
+    <div class="cookie-categories">
+      <label class="cookie-category">
+        <input type="checkbox" checked disabled />
+        <span><strong>Necessary</strong> — Required for the site to function</span>
+      </label>
+      <label class="cookie-category">
+        <input type="checkbox" id="consentAnalytics" />
+        <span><strong>Analytics</strong> — Helps us understand how visitors use the site</span>
+      </label>
+      <label class="cookie-category">
+        <input type="checkbox" id="consentComments" />
+        <span><strong>Comments</strong> — Enables comment sections if configured</span>
+      </label>
+      <label class="cookie-category">
+        <input type="checkbox" id="consentMarketing" />
+        <span><strong>Marketing</strong> — Used for marketing and advertising</span>
+      </label>
+    </div>
+    <div class="cookie-modal-actions">
+      <button class="cookie-btn cookie-btn-save" id="cookieSave">Save preferences</button>
+    </div>
+    <button class="cookie-modal-close" id="cookieModalClose" aria-label="Close">&times;</button>
+  </div>
+</div>
+
+<script>
+function getConsent() {
+  try {
+    var raw = localStorage.getItem('cookieConsent');
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setConsent(state) {
+  localStorage.setItem('cookieConsent', JSON.stringify(state));
+}
+
+function showBanner(show) {
+  document.getElementById('cookieBanner').style.display = show ? 'block' : 'none';
+}
+
+function showModal(show) {
+  var modal = document.getElementById('cookieModal');
+  modal.hidden = !show;
+  modal.style.display = show ? 'block' : 'none';
+}
+
+var consent = getConsent();
+
+if (!consent) {
+  showBanner(true);
+} else {
+  showBanner(false);
+}
+
+document.getElementById('cookieAccept').addEventListener('click', function() {
+  setConsent({ necessary: true, analytics: true, comments: true, marketing: true });
+  showBanner(false);
+});
+
+document.getElementById('cookieReject').addEventListener('click', function() {
+  setConsent({ necessary: true, analytics: false, comments: false, marketing: false });
+  showBanner(false);
+});
+
+document.getElementById('cookieManage').addEventListener('click', function() {
+  var current = getConsent();
+  document.getElementById('consentAnalytics').checked = current ? current.analytics : false;
+  document.getElementById('consentComments').checked = current ? current.comments : false;
+  document.getElementById('consentMarketing').checked = current ? current.marketing : false;
+  showModal(true);
+});
+
+document.getElementById('cookieSave').addEventListener('click', function() {
+  setConsent({
+    necessary: true,
+    analytics: document.getElementById('consentAnalytics').checked,
+    comments: document.getElementById('consentComments').checked,
+    marketing: document.getElementById('consentMarketing').checked,
+  });
+  showModal(false);
+  showBanner(false);
+});
+
+document.getElementById('cookieModalClose').addEventListener('click', function() {
+  showModal(false);
+});
+
+document.querySelector('.cookie-modal-overlay').addEventListener('click', function() {
+  showModal(false);
+});
+</script>
+
+

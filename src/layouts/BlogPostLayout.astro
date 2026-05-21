@@ -1,0 +1,117 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { formatDate } from '../lib/dates';
+import { estimateReadingTime } from '../lib/readingTime';
+import { makeCanonical, jsonLdBlogPosting } from '../lib/seo';
+import { siteConfig } from '../config/site';
+import TagPill from '../components/TagPill.astro';
+import { t } from '../lib/i18n';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, author, tags, category, language, tldr, cover } = post.data;
+const readTime = estimateReadingTime(post.body || '');
+const postUrl = makeCanonical(`/articles/${post.id}`);
+const jsonLd = jsonLdBlogPosting({
+  title, description, pubDate, updatedDate, author,
+  url: postUrl,
+  image: cover ? `${siteConfig.siteUrl}${cover.src}` : undefined,
+  tags,
+});
+const lang = language;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={postUrl}
+  ogType="article"
+  lang={language}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">{t('sidebar.onThisPage', lang)}</div>
+        <ul class="sidebar-list">
+          <li><a href="#intro">Introduction</a></li>
+          <li><a href="#content">Content</a></li>
+        </ul>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-title">{t('sidebar.tags', lang)}</div>
+        <div class="tag-cloud">
+          {tags.map(tag => <TagPill tag={tag} lang={lang} />)}
+        </div>
+      </div>
+    </aside>
+
+    <article class="main" style="max-width: 720px;">
+      <div style="margin-bottom: 40px;">
+        <h1 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 16px;">{title}</h1>
+        <div class="post-entry-meta">
+          <time datetime={pubDate.toISOString()}>{formatDate(pubDate, language)}</time>
+          <span class="dot" aria-hidden="true"></span>
+          <span class="cat">{category}</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span>{readTime} min read</span>
+        </div>
+        <div class="post-entry-tags" style="margin-top: 18px;">
+          {tags.map(tag => <TagPill tag={tag} lang={lang} />)}
+        </div>
+      </div>
+
+      {tldr && tldr.length > 0 && (
+        <div class="tldr-block">
+          <strong>{t('post.tldr', lang)}</strong>
+          <ul>
+            {tldr.map(item => <li>{item}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <div class="prose">
+        <slot />
+      </div>
+    </article>
+  </div>
+
+  <style>
+.prose { max-width: 720px; }
+.prose :global(p) { font-size: 1.0625rem; line-height: 1.75; margin-bottom: 20px; color: var(--fg); opacity: .92; }
+.prose :global(h2) { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 44px; margin-bottom: 16px; color: var(--fg); }
+.prose :global(h3) { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-top: 32px; margin-bottom: 12px; color: var(--fg); }
+.prose :global(ul) { list-style: disc; padding-left: 24px; margin-bottom: 20px; }
+.prose :global(ol) { list-style: decimal; padding-left: 24px; margin-bottom: 20px; }
+.prose :global(li) { font-size: 1.0625rem; line-height: 1.7; margin-bottom: 8px; color: var(--fg); opacity: .92; }
+.prose :global(code) { font-family: var(--font-mono); font-size: .94em; background: oklch(92% 0.004 260); color: var(--fg); padding: 2px 5px; border-radius: 4px; }
+:global(html.dark) .prose :global(code) { background: oklch(28% 0.012 260); }
+.prose :global(pre) {
+  background: oklch(18% 0.02 260);
+  color: oklch(93% 0.004 260);
+  padding: 20px 22px;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: .9rem;
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+.prose :global(pre code) { background: none; color: inherit; padding: 0; font-size: inherit; }
+.prose :global(blockquote) {
+  border-left: 3px solid var(--accent);
+  padding-left: 18px;
+  margin: 28px 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.prose :global(blockquote p) { margin-bottom: 0; }
+.prose :global(a) { font-weight: 500; }
+.prose :global(hr) { border: 0; border-top: 1px solid var(--border); margin: 40px 0; }
+.prose :global(img) { border-radius: var(--radius-sm); margin: 24px 0; }
+  </style>
+</BaseLayout>

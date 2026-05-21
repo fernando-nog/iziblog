@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDateShort } from '../../lib/dates';
+import { getPublishedPosts } from '../../lib/posts';
+import { t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'en' } }, { params: { lang: 'pt' } }];
+}
+
+const { lang } = Astro.params;
+const posts = await getPublishedPosts(lang);
+const groups = new Map<string, typeof posts>();
+for (const post of posts) {
+  const year = post.data.pubDate.getFullYear().toString();
+  if (!groups.has(year)) groups.set(year, []);
+  groups.get(year)!.push(post);
+}
+const sortedYears = [...groups.keys()].sort((a, b) => Number(b) - Number(a));
+---
+
+<BaseLayout title={t('archive.title', lang)} description={t('archive.desc', lang)} lang={lang}>
+  <div class="container">
+    <div class="main">
+      <h1 class="page-title">{t('archive.title', lang)}</h1>
+      {sortedYears.map(year => (
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin-bottom: 16px; color: var(--fg); border-bottom: 1px solid var(--border); padding-bottom: 8px;">{year}</h2>
+          <ul style="list-style: none; padding: 0;">
+            {groups.get(year)!.map(post => (
+              <li style="padding: 8px 0; font-size: 1rem; color: var(--fg); display: flex; gap: 8px;">
+                <time datetime={post.data.pubDate.toISOString()} style="font-family: var(--font-mono); font-size: .875rem; color: var(--muted); white-space: nowrap;">
+                  {formatDateShort(post.data.pubDate, post.data.language)}
+                </time>
+                <span style="color: var(--muted);"> — </span>
+                <a href={`/${lang}/articles/${post.id}`} style="color: var(--fg); text-decoration: none;">{post.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

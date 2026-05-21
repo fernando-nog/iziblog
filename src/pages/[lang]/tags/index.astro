@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedPosts, getAllTags } from '../../../lib/posts';
+import { t } from '../../../lib/i18n';
+import type { Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'en' } }, { params: { lang: 'pt' } }];
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const posts = await getPublishedPosts(lang);
+const tags = getAllTags(posts);
+---
+
+<BaseLayout title={t('tags.title', lang)} description={t('tags.desc', lang)} lang={lang}>
+  <div class="container">
+    <div class="main">
+      <h1 class="page-title">{t('tags.title', lang)}</h1>
+      <p class="page-sub">{t('tags.desc', lang)}</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px;">
+        {[...tags.entries()].map(([tag, count]) => (
+          <a href={`/${lang}/tags/${encodeURIComponent(tag)}`} class="tag-item">
+            {tag} <span class="tag-count">({count})</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <style>
+.tag-item {
+  font-size: .9375rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all .15s ease;
+}
+.tag-item:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.tag-count { font-size: .82rem; color: var(--muted); }
+  </style>
+</BaseLayout>

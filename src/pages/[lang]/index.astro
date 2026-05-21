@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPublishedPosts, getFeaturedPosts } from '../../lib/posts';
+import { siteConfig } from '../../config/site';
+import { jsonLdWebSite } from '../../lib/seo';
+import { t } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'en' } }, { params: { lang: 'pt' } }];
+}
+
+const { lang } = Astro.params;
+const featured = await getFeaturedPosts(3, lang);
+const recent = await getPublishedPosts(lang);
+const postsToShow = featured.length > 0 ? featured : recent.slice(0, 3);
+const jsonLd = jsonLdWebSite();
+const sectionTitle = featured.length > 0 ? t('home.featuredPosts', lang) : t('home.recentPosts', lang);
+---
+
+<BaseLayout
+  title={siteConfig.title}
+  description={siteConfig.description}
+  jsonLd={jsonLd}
+  lang={lang}
+>
+  <div class="container">
+    <div class="main">
+      <section class="hero">
+        <h1 class="hero-title">{siteConfig.name}</h1>
+        <p class="hero-desc">{siteConfig.description}</p>
+        <div class="hero-links">
+          <a href={`/${lang}/articles`}>{t('home.browseArticles', lang)}</a>
+          <a href={`/${lang}/tags`}>{t('home.exploreTags', lang)}</a>
+          <a href={`/${lang}/about`}>{t('home.aboutLink', lang)}</a>
+        </div>
+      </section>
+
+      <section style="margin-top: 48px;">
+        <h2 class="hero-section-title">{sectionTitle}</h2>
+        <div style="border-top: 1px solid var(--border);">
+          {postsToShow.map(post => <PostCard post={post} />)}
+        </div>
+        <div style="margin-top: 32px;">
+          <a href={`/${lang}/articles`} class="more-link">{t('home.viewAll', lang)}</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <style>
+.hero { padding-bottom: 12px; }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.hero-desc {
+  font-size: 1.125rem;
+  color: var(--muted);
+  max-width: var(--max-content);
+  margin-bottom: 20px;
+}
+.hero-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.hero-links a {
+  font-weight: 600;
+  font-size: .9375rem;
+  color: var(--fg);
+  text-decoration: none;
+}
+.hero-links a:hover { color: var(--accent); }
+.hero-section-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--fg);
+}
+.more-link {
+  font-weight: 600;
+  font-size: .9375rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  text-decoration: none;
+}
+.more-link:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+</BaseLayout>

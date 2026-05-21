@@ -1,0 +1,35 @@
+---
+import { formatDateShort } from '../lib/dates';
+import { estimateReadingTime } from '../lib/readingTime';
+import TagPill from './TagPill.astro';
+import type { Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  lang?: string;
+}
+
+const { post, lang: propLang } = Astro.props;
+const { title, description, pubDate, tags, category, language } = post.data;
+const readTime = estimateReadingTime(post.body || '');
+const lang = propLang || language;
+---
+
+<article class="post-entry">
+  <h2 class="post-entry-title">
+    <a href={`/${lang}/articles/${post.id}`}>{title}</a>
+  </h2>
+  <div class="post-entry-meta">
+    <time datetime={pubDate.toISOString()}>{formatDateShort(pubDate, language)}</time>
+    <span class="dot" aria-hidden="true"></span>
+    <span class="cat">{category}</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>{readTime} min read</span>
+  </div>
+  <p class="post-entry-excerpt">{description}</p>
+  {tags.length > 0 && (
+    <div class="post-entry-tags">
+      {tags.map(tag => <TagPill tag={tag} lang={lang} />)}
+    </div>
+  )}
+</article>

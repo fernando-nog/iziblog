@@ -1,0 +1,16 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { t, getLangFromUrl } from '../lib/i18n';
+
+const lang = getLangFromUrl(Astro.url);
+---
+
+<PageLayout title={t('404.title', lang)}>
+  <h1 class="page-title">404 — {t('404.title', lang)}</h1>
+  <p class="page-sub">{t('404.message', lang)}</p>
+  <a href={`/${lang}/`} class="back-link">{t('404.backHome', lang)}</a>
+
+  <style>
+.back-link { font-weight: 600; font-size: .9375rem; }
+  </style>
+</PageLayout>

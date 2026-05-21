@@ -1,0 +1,33 @@
+# build output
+dist/
+!.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Pagefind artifacts in dist (auto-generated at build)
+# dist/pagefind/ is auto-generated — keep it out or include it
+# We include dist/ in general, but pagefind is rebuilt each time
+
+# Development docs and design references (not part of the template)
+docs/
+design-reference/

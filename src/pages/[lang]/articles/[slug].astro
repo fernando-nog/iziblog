@@ -1,0 +1,27 @@
+---
+import BlogPostLayout from '../../../layouts/BlogPostLayout.astro';
+import { getPublishedPosts, type Post } from '../../../lib/posts';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getPublishedPosts();
+  return allPosts.flatMap((post: Post) => {
+    const lang = post.data.language;
+    // post.id is like "en/getting-started-with-iziblog" — strip lang prefix for slug
+    const slug = post.id.split('/').pop() || post.id;
+    return { params: { lang, slug }, props: { post } };
+  });
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { lang } = Astro.params;
+---
+
+<BlogPostLayout post={post}>
+  <Content />
+</BlogPostLayout>
