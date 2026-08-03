@@ -21,21 +21,23 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "build": "cross-env NODE_ENV=production tsx build-check.ts && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.6",
+    "@astrojs/mdx": "^7.0.5",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.2",
-    "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.3.6",
-    "tailwindcss": "^4.3.0",
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.1.6",
+    "tailwindcss": "^4.3.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "pagefind": "^1.5.2"
+    "@types/node": "^26.1.2",
+    "cross-env": "^10.1.0",
+    "pagefind": "^1.5.2",
+    "tsx": "^4.23.5"
   }
 }

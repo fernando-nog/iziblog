@@ -9,13 +9,16 @@ export const GET: APIRoute = async (context) => {
     title: siteConfig.name,
     description: siteConfig.description,
     site: context.site || siteConfig.siteUrl,
-    items: posts.map((post) => ({
-      title: post.data.title,
-      description: post.data.description,
-      pubDate: post.data.pubDate,
-      link: `/articles/${post.id}/`,
-      categories: post.data.tags,
-    })),
+    items: posts.map((post) => {
+      const slug = post.id.split('/').pop() || post.id;
+      return {
+        title: post.data.title,
+        description: post.data.description,
+        pubDate: post.data.pubDate,
+        link: `/articles/${slug}/`,
+        categories: post.data.tags,
+      };
+    }),
     customData: `<language>${siteConfig.defaultLanguage}</language>`,
   });
 };

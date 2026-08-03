@@ -1,0 +1,77 @@
+---
+import { siteConfig } from '../config/site';
+import { t } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  items: { label: string; href: string }[];
+  lang?: Lang;
+}
+
+const { items, lang = 'en' } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: `${siteConfig.siteUrl.replace(/\/$/, '')}${item.href}`,
+  })),
+};
+---
+
+<nav class="breadcrumbs" aria-label={t('sidebar.onThisPage', lang)}>
+  <ol class="breadcrumbs-list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    {
+      items.map((item, index) => (
+        <li
+          class="breadcrumbs-item"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          {index > 0 && <span class="breadcrumbs-separator" aria-hidden="true">/</span>}
+          <a itemprop="item" href={item.href}>
+            <span itemprop="name">{item.label}</span>
+          </a>
+          <meta itemprop="position" content={String(index + 1)} />
+        </li>
+      ))
+    }
+  </ol>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+</nav>
+
+<style>
+  .breadcrumbs {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .breadcrumbs-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 6px;
+  }
+  .breadcrumbs-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .breadcrumbs-separator {
+    color: var(--border);
+  }
+  .breadcrumbs a {
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .breadcrumbs a:hover {
+    text-decoration: underline;
+  }
+</style>

@@ -39,7 +39,7 @@ const sectionTitle = featured.length > 0 ? t('home.featuredPosts', lang) : t('ho
       <section style="margin-top: 48px;">
         <h2 class="hero-section-title">{sectionTitle}</h2>
         <div style="border-top: 1px solid var(--border);">
-          {postsToShow.map(post => <PostCard post={post} />)}
+          {postsToShow.map(post => <PostCard post={post} lang={lang} prefetch />)}
         </div>
         <div style="margin-top: 32px;">
           <a href={`/${lang}/articles`} class="more-link">{t('home.viewAll', lang)}</a>

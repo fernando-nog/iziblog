@@ -1,0 +1,68 @@
+---
+import PostCard from './PostCard.astro';
+import { getPublishedPosts, type Post } from '../lib/posts';
+import { t } from '../lib/i18n';
+import type { Lang } from '../lib/i18n';
+
+interface Props {
+  currentPost: Post;
+  limit?: number;
+}
+
+const { currentPost, limit = 4 } = Astro.props;
+const { id, data } = currentPost;
+const lang = (data.language || 'en') as Lang;
+
+const currentTags = new Set(data.tags.map((tag) => tag.toLowerCase()));
+
+const allPosts = await getPublishedPosts(lang);
+
+const related = allPosts
+  .filter((post) => post.id !== id)
+  .map((post) => {
+    const matches = post.data.tags.filter((tag) =>
+      currentTags.has(tag.toLowerCase()),
+    ).length;
+    return { post, score: matches };
+  })
+  .filter(({ score }) => score > 0)
+  .sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf();
+  })
+  .slice(0, limit)
+  .map(({ post }) => post);
+---
+
+{
+  related.length > 0 && (
+    <aside class="related-posts" aria-labelledby="related-posts-heading">
+      <h2 id="related-posts-heading" class="related-posts-title">
+        {t('post.related', lang)}
+      </h2>
+      <div class="related-posts-list">
+        {related.map((post) => (
+          <PostCard post={post} lang={lang} prefetch />
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+<style>
+  .related-posts {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+  .related-posts-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .related-posts-list {
+    display: grid;
+    gap: 16px;
+  }
+</style>

@@ -29,7 +29,7 @@ const pluralS = count !== 1 ? 's' : '';
       <h1 class="page-title">{t('tags.title', lang)}: {tag}</h1>
       <p class="page-sub">{count} {t('tag.postsTagged', lang).replace('{s}', pluralS)} "{tag}".</p>
       <div style="border-top: 1px solid var(--border);">
-        {posts.map((post: Post) => <PostCard post={post} lang={lang} />)}
+        {posts.map((post: Post) => <PostCard post={post} lang={lang} prefetch />)}
       </div>
     </div>
   </div>

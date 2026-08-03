@@ -1,0 +1,60 @@
+---
+export interface Props {
+  measurementId?: string;
+}
+
+const { measurementId } = Astro.props;
+---
+
+{
+  measurementId && (
+    <script
+      is:inline
+      async
+      type="text/plain"
+      data-cookie-category="analytics"
+      data-src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+      data-cookie-consent-required="true"
+    ></script>
+  )
+}
+
+{
+  measurementId && (
+    <script is:inline type="text/plain" data-cookie-category="analytics" set:html={`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${measurementId}', {
+        anonymize_ip: true,
+        send_page_view: false,
+      });
+
+      (function() {
+        try {
+          var consent = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+          if (consent.analytics) {
+            gtag('event', 'page_view');
+          }
+        } catch (e) {}
+      })();
+    `} />
+  )
+}
+
+<script is:inline>
+  // Cookie consent changed: update gtag consent state and send queued page_view.
+  window.addEventListener('cookieConsentChanged', function() {
+    try {
+      var consent = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+      if (typeof gtag === 'function') {
+        gtag('consent', 'update', {
+          analytics_storage: consent.analytics ? 'granted' : 'denied',
+        });
+        if (consent.analytics) {
+          gtag('event', 'page_view');
+        }
+      }
+    } catch (e) {}
+  });
+</script>

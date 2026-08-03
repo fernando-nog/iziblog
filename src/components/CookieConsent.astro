@@ -71,13 +71,19 @@ if (!consent) {
   showBanner(false);
 }
 
+function dispatchConsentChanged() {
+  window.dispatchEvent(new CustomEvent('cookieConsentChanged'));
+}
+
 document.getElementById('cookieAccept').addEventListener('click', function() {
   setConsent({ necessary: true, analytics: true, comments: true, marketing: true });
+  dispatchConsentChanged();
   showBanner(false);
 });
 
 document.getElementById('cookieReject').addEventListener('click', function() {
   setConsent({ necessary: true, analytics: false, comments: false, marketing: false });
+  dispatchConsentChanged();
   showBanner(false);
 });
 
@@ -96,6 +102,7 @@ document.getElementById('cookieSave').addEventListener('click', function() {
     comments: document.getElementById('consentComments').checked,
     marketing: document.getElementById('consentMarketing').checked,
   });
+  dispatchConsentChanged();
   showModal(false);
   showBanner(false);
 });
