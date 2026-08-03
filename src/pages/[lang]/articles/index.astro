@@ -46,7 +46,7 @@ const tags = getAllTags(allPosts);
       <h1 class="page-title">{t('articles.title', lang)}</h1>
       <p class="page-sub">{t('articles.desc', lang)}</p>
       <div style="border-top: 1px solid var(--border);">
-        {posts.map((post: Post) => <PostCard post={post} lang={lang} />)}
+          {posts.map((post: Post) => <PostCard post={post} lang={lang} prefetch />)}
       </div>
       {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} basePath={`/${lang}/articles`} />}
     </main>

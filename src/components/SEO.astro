@@ -28,7 +28,7 @@ const {
 const pageLang = lang || getLangFromUrl(Astro.url);
 const pageTitle = makeTitle(title);
 const canonical = canonicalUrl || makeCanonical(Astro.url.pathname);
-const image = ogImage || `${siteConfig.siteUrl}/favicon.svg`;
+const image = ogImage || `${siteConfig.siteUrl.replace(/\/$/, '')}/favicon.svg`;
 
 // Alternate hreflang links
 const currentPath = Astro.url.pathname.replace(/^\/(en|pt)/, '') || '/';
@@ -59,6 +59,7 @@ const ptUrl = `${siteConfig.siteUrl}/pt${currentPath === '/' ? '/' : currentPath
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" as="style" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
 {jsonLd && (

@@ -13,6 +13,10 @@ export default defineConfig({
       prefixDefaultLocale: true,
     },
   },
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   vite: {
     plugins: []
   },

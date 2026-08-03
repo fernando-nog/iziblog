@@ -7,17 +7,19 @@ import type { Post } from '../lib/posts';
 interface Props {
   post: Post;
   lang?: string;
+  prefetch?: boolean;
 }
 
-const { post, lang: propLang } = Astro.props;
+const { post, lang: propLang, prefetch = false } = Astro.props;
 const { title, description, pubDate, tags, category, language } = post.data;
 const readTime = estimateReadingTime(post.body || '');
 const lang = propLang || language;
+const slug = post.id.split('/').pop() || post.id;
 ---
 
 <article class="post-entry">
   <h2 class="post-entry-title">
-    <a href={`/${lang}/articles/${post.id}`}>{title}</a>
+    <a href={`/${lang}/articles/${slug}/`} data-astro-prefetch={prefetch ? 'hover' : false}>{title}</a>
   </h2>
   <div class="post-entry-meta">
     <time datetime={pubDate.toISOString()}>{formatDateShort(pubDate, language)}</time>

@@ -27,6 +27,9 @@ export const labels = {
     // Post
     'post.readTime': 'min read',
     'post.tldr': 'TL;DR',
+    'post.related': 'Related posts',
+    'post.breadcrumbHome': 'Home',
+    'post.breadcrumbArticles': 'Articles',
     // Home
     'home.title': 'IziBlog',
     'home.description': 'A simple, SEO-first Astro template for technical blogs.',
@@ -87,6 +90,9 @@ export const labels = {
     // Post
     'post.readTime': 'min de leitura',
     'post.tldr': 'Resumo',
+    'post.related': 'Posts relacionados',
+    'post.breadcrumbHome': 'Início',
+    'post.breadcrumbArticles': 'Artigos',
     // Home
     'home.title': 'IziBlog',
     'home.description': 'A simple, SEO-first Astro template for technical blogs.',
