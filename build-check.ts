@@ -2,8 +2,16 @@ import { siteConfig } from './src/config/site';
 
 const EXPECTED_DOMAIN = 'example.com';
 
+function getHostname(url: string): string {
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
 if (process.env.NODE_ENV === 'production') {
-  if (siteConfig.siteUrl.includes(EXPECTED_DOMAIN)) {
+  if (getHostname(siteConfig.siteUrl) === EXPECTED_DOMAIN) {
     console.warn(
       '\n⚠️  WARNING: siteConfig.siteUrl still uses the placeholder domain "example.com".\n' +
       '   Update src/config/site.ts with your real domain before deploying.\n' +
