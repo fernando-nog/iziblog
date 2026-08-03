@@ -2,26 +2,28 @@
 
 A simple, SEO-first Astro template for technical blogs with multilingual support.
 
-IziBlog is built for developers and technical writers who want a fast, Markdown-first blog with RSS, sitemap, structured data, `llms.txt`, dark mode, multilingual routing, search and privacy-friendly cookie consent.
+IziBlog is built for developers and technical writers who want a fast, Markdown-first blog with strong SEO, internal discovery, RSS, sitemap, structured data, `llms.txt`, dark mode, multilingual routing, search and privacy-friendly cookie consent.
 
 ## Features
 
 - ✅ **Markdown / MDX** content with Astro Content Collections
 - ✅ **Multilingual** (EN/PT) via Astro built-in i18n routing — add more languages easily
-- ✅ **SEO-ready** — meta tags, Open Graph, Twitter Cards, JSON-LD, hreflang
-- ✅ **RSS feed** (`/{lang}/rss.xml`) per language
+- ✅ **SEO-ready** — meta tags, Open Graph, Twitter Cards, canonical URLs, JSON-LD, hreflang, breadcrumbs
+- ✅ **Internal discovery** — automatic related posts by shared tags and topic tag pages
+- ✅ **RSS feed** (`/rss.xml` default, `/{lang}/rss.xml` optional) per language
 - ✅ **Sitemap** (`/sitemap-index.xml`) via `@astrojs/sitemap`
 - ✅ **`llms.txt`** and **`llms-full.txt`** support for LLM discoverability
 - ✅ **Dark / light / system** theme toggle with anti-FOUC script
 - ✅ **Static search** via Pagefind (Ctrl+K)
 - ✅ **Privacy-friendly cookie consent** with 4 configurable categories
-- ✅ **Tag-based navigation** and archive by year
+- ✅ **Consent-aware analytics** — Google gtag integration wired to cookie banner
+- ✅ **Tag-based navigation**, archive by year, and automatic prefetch on post links
 - ✅ **Accessible, responsive, fast by default**
 - ✅ **Vanilla CSS** design system — no Tailwind dependency
 
 ## Tech Stack
 
-- [Astro](https://astro.build) v6 — static site generation
+- [Astro](https://astro.build) v7 — static site generation
 - [TypeScript](https://www.typescriptlang.org/) — type-safe code
 - [Pagefind](https://pagefind.app) — static search indexing
 - Vanilla CSS with design tokens (`oklch` colors, Inter font)
@@ -53,7 +55,7 @@ npm run preview
 ```
 public/
   favicon.svg        — Site favicon
-  robots.txt         — Crawler instructions
+  robots.txt         — Crawler instructions (generated dynamically via `src/pages/robots.txt.ts`)
 src/
   components/        — Reusable UI components
   config/            — Central site configuration
@@ -160,6 +162,10 @@ export const siteConfig = {
   title: 'Your Blog',
   description: 'Your blog description.',
   siteUrl: 'https://yourdomain.com',
+  defaultLanguage: 'en',
+  analytics: {
+    measurementId: '', // set to 'G-XXXXXXXXXX' to enable gtag
+  },
   // ...
 };
 ```
@@ -194,9 +200,24 @@ The template loads **Inter** (400–800) from Google Fonts. Change the `<link>` 
 - Twitter Cards: `twitter:title`, `twitter:description`, `twitter:image`
 - Canonical URL per page
 - `hreflang` alternates (`<link rel="alternate">` for EN/PT)
+- JSON-LD structured data (WebSite, BlogPosting, BreadcrumbList)
+- Breadcrumbs on every post
+- Related posts by shared tags
 - `sitemap-index.xml` via `@astrojs/sitemap`
-- RSS feed per language (`/{lang}/rss.xml`)
-- JSON-LD structured data (WebSite, BlogPosting)
+- RSS feed (`/rss.xml`) and optional per-language feed (`/{lang}/rss.xml`)
+- Automatic link prefetching on post listings
+
+### Analytics
+
+Set your Google Analytics 4 measurement ID in `src/config/site.ts`:
+
+```ts
+analytics: {
+  measurementId: 'G-XXXXXXXXXX',
+},
+```
+
+The gtag script only loads after the visitor accepts the **Analytics** category in the cookie banner.
 
 ### `llms.txt`
 
@@ -238,7 +259,7 @@ A client-side privacy banner with 4 categories:
 - **Comments** — enables comment sections if configured
 - **Marketing** — used for marketing and advertising
 
-Preferences are stored in `localStorage`. No third-party scripts are loaded by default. Wire your own analytics by reading `localStorage.getItem('cookieConsent')` and parsing the JSON.
+Preferences are stored in `localStorage`. No third-party scripts are loaded by default. Analytics is already wired to the banner via `src/components/Analytics.astro`; set `siteConfig.analytics.measurementId` to enable it.
 
 ## Search
 
